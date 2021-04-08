@@ -6,26 +6,59 @@
 	<link rel="stylesheet" href="../css/style.css" type="text/css" media="screen, projection" />
 	<link href='http://fonts.googleapis.com/css?family=Libre+Baskerville:400,700,400italic' rel='stylesheet' type='text/css'>
 	<script type="text/javascript" src="../js/verlet-1.0.0.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+	<style type="text/css" media="screen">
+		#editor { 
+			position: relative;
+			width: 100%;
+			height: 20rem;
+		}
+	</style>
 </head>
 <body>
 	<script type="text/javascript" src="../site/js/common.js"></script>
 	<div id="header">
-		<h1><a href="../">verlet-js</a> / <em>Shapes</em></h1>
+		<h1><a href="../">verlet-js</a> / <em>pendulum generator</em></h1>
 		<div id="bsa">
 			<script type="text/javascript" src="http://cdn.adpacks.com/adpacks.js?legacyid=1285933&zoneid=1386&key=3df5e2ea1c6a237386fb9d4cdf5b99f0&serve=C6SD52Y&placement=subprotocolcom&circle=dev" id="_adpacks_js"></script>
 		</div>
-		<p>
-			<h4>Author</h4>
-			<a href="http://subprotocol.com/">Sub Protocol</a>
-			
-			<h4>Summary</h4>
-			
-			This is the <i>hello world</i> of Verlet-JS. Simple shapes generated using VerletJS.prototype.tire(origin, radius, segments, spokeStiffness, treadStiffness). Also demonstrating various constraint stiffness coefficients. All objects are draggable.
-			<h4>Source Code</h4>
-			<a href="https://github.com/subprotocol/verlet-js/blob/master/examples/shapes.html">View on GitHub</a>
-		</p>
 	</div>
+
+
+	<div id="editor">function * pendulumGenerator({ pendulumCount = 5, period = 1, totalCycles = 3, gravity = 9.8, lengthMultiplier = 1 } = {}) {
+	for (let i = 0; i < pendulumCount; i++) {
+		yield gravity * Math.abs(period/(2*Math.PI*(totalCycles+(i+1)+1))) * lengthMultiplier;
+	}
+}
+
+const distanceBetween = 0;
+
+const left = 0;
+[...pendulumGenerator({ totalCycles: 1, period: 5, pendulumCount: 10, lengthMultiplier: 1})].forEach((c, i) => {
+	const x = width / 2 + i * distanceBetween;
+	const y = 10;
+	const segment = sim.lineSegments([new Vec2(x, y), new Vec2(x+c*150, y)], 9.8);
+	const pin = segment.pin(0);
+
+	return segment;
+});</div>
+			
 	<canvas id="scratch" style="width: 800px; height: 500px;"></canvas>
+
+	<h4>Vertlet-js Author</h4>
+	<a href="http://subprotocol.com/">Sub Protocol</a>
+
+	<div id="footer">
+		Copyright 2013 Sub Protocol and other contributors.
+		<br/><a href="http://subprotocol.com/">http://subprotocol.com/</a>
+	</div>
+
+	<script>
+		var editor = ace.edit("editor");
+		editor.setTheme("ace/theme/monokai");
+		editor.session.setMode("ace/mode/javascript");
+	</script>
+
 	<script type="text/javascript">
 
 	window.onload = function() {
@@ -45,14 +78,23 @@
 		var sim = new VerletJS(width, height, canvas);
 		sim.friction = 1;
 		
-		// entities
-		var segment = sim.lineSegments([new Vec2(20,10), new Vec2(40,10), new Vec2(60,10), new Vec2(80,10), new Vec2(100,10)], 0.02);
-		var pin = segment.pin(0);
-		var pin = segment.pin(4);
-		
-		var tire1 = sim.tire(new Vec2(200,50), 50, 30, 0.3, 0.9);
-		var tire2 = sim.tire(new Vec2(400,50), 70, 7, 0.1, 0.2);
-		var tire3 = sim.tire(new Vec2(600,50), 70, 3, 1, 1);
+		function * pendulumGenerator({ pendulumCount = 5, period = 1, totalCycles = 3, gravity = 9.8, lengthMultiplier = 1 } = {}) {
+			for (let i = 0; i < pendulumCount; i++) {
+				yield gravity * Math.abs(period/(2*Math.PI*(totalCycles+(i+1)+1))) * lengthMultiplier;
+			}
+		}
+
+		const distanceBetween = 0;
+
+		const left = 0;
+		[...pendulumGenerator({ totalCycles: 1, period: 5, pendulumCount: 100, lengthMultiplier: 1})].forEach((c, i) => {
+			const x = width / 2 + i * distanceBetween;
+			const y = 10;
+			const segment = sim.lineSegments([new Vec2(x, y), new Vec2(x+c*150, y)], 1);
+			const pin = segment.pin(0);
+
+			return segment;
+		});
 
 		// animation loop
 		var loop = function() {
@@ -66,8 +108,4 @@
 	
 	
 	</script>
-	<div id="footer">
-		Copyright 2013 Sub Protocol and other contributors.
-		<br/><a href="http://subprotocol.com/">http://subprotocol.com/</a>
-	</div>
 </body>
